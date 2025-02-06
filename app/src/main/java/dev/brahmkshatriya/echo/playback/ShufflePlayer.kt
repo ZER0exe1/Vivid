@@ -41,41 +41,59 @@ class ShufflePlayer(
     }
 
     private fun changeQueue(list: List<MediaItem>) {
-        print("Change queue")
-        if (list.size <= 1) return
-        val currentMediaItem = player.currentMediaItem!!
-        val index = list.find { it == currentMediaItem }?.let { list.indexOf(it) }!!
-        val before = list.take(index) - currentMediaItem
-        val after = list.takeLast(list.size - index) - currentMediaItem
-        if (currentMediaItemIndex > 0) player.removeMediaItems(0, currentMediaItemIndex)
-        player.addMediaItems(0, before)
-        player.removeMediaItems(currentMediaItemIndex + 1, mediaItemCount)
-        player.addMediaItems(currentMediaItemIndex + 1, after)
-    }
+    print("Change queue")
+    if (list.size <= 1) return
 
-    override fun addMediaItem(mediaItem: MediaItem) {
-        if (isShuffled) original = original + mediaItem
+    val currentMediaItem = player.currentMediaItem
+    val currentIndex = list.indexOf(currentMediaItem)
+
+    // Remove current media item from the player if it exists
+    if (currentIndex != -1) {
+        player.removeMediaItems(0, mediaItemCount - 1)
+        player.addMediaItems(0, list)
+        player.seekTo(currentIndex)
+    } else {
+        player.setMediaItems(list)
+    }
+}
+
+override fun addMediaItem(mediaItem: MediaItem) {
+    if (isShuffled) {
+        original = original + mediaItem
+        changeQueue(original.shuffled())
+    } else {
         player.addMediaItem(mediaItem)
-        print("Add media item")
     }
+    print("Add media item")
+}
 
-    override fun addMediaItems(mediaItems: MutableList<MediaItem>) {
-        if (isShuffled) original = original + mediaItems
+override fun addMediaItems(mediaItems: MutableList<MediaItem>) {
+    if (isShuffled) {
+        original = original + mediaItems
+        changeQueue(original.shuffled())
+    } else {
         player.addMediaItems(mediaItems)
-        print("Add media items")
     }
+    print("Add media items")
+}
 
     override fun addMediaItem(index: Int, mediaItem: MediaItem) {
         if (isShuffled) original = original + mediaItem
         player.addMediaItem(index, mediaItem)
-        print("Add media item at $index")
+    }   else {
+        player.addMediaItems(index, mediaItem)
     }
+    print("Add media item at $index")
+}
 
     override fun addMediaItems(index: Int, mediaItems: MutableList<MediaItem>) {
         if (isShuffled) original = original + mediaItems
         player.addMediaItems(index, mediaItems)
-        print("Add media items at $index")
+    }   else {
+        player.addMediaItems(index, mediaItems)
     }
+    print("Add media items at $index")
+}
 
     override fun removeMediaItem(index: Int) {
         if (isShuffled) original = original - getMediaItemAt(index)
