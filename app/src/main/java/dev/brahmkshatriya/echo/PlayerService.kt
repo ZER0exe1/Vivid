@@ -147,7 +147,7 @@ class PlayerService : MediaLibraryService() {
 
         exoPlayer.prepare()
 
-//        val player = ShufflePlayer(exoPlayer)
+       val player = ShufflePlayer(exoPlayer)
         val player = exoPlayer
 
         val callback = PlayerCallback(
