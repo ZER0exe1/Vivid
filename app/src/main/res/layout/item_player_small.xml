@@ -14,6 +14,7 @@
         android:background="#FE897F" />
 
     <LinearLayout
+        android:id="@+id/collapsedPlayerInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="8dp"
@@ -53,7 +54,7 @@
                 android:id="@+id/collapsedTrackArtist"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
+                android:ellipsize="marquee"
                 android:maxLines="1"
                 android:textColor="?attr/colorOnSurface"
                 tools:text="@tools:sample/lorem/random" />

@@ -12,11 +12,13 @@ import android.text.method.LinkMovementMethod
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.TextView
 import androidx.annotation.OptIn
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -59,11 +61,12 @@ import dev.brahmkshatriya.echo.ui.player.PlayerTrackAdapter.Listener
 import dev.brahmkshatriya.echo.ui.player.PlayerTrackAdapter.ViewHolder
 import dev.brahmkshatriya.echo.ui.settings.LookFragment
 import dev.brahmkshatriya.echo.utils.image.load
+import dev.brahmkshatriya.echo.utils.image.loadBitmap
 import dev.brahmkshatriya.echo.utils.image.loadBlurred
-import dev.brahmkshatriya.echo.utils.image.loadWithBitmap
 import dev.brahmkshatriya.echo.utils.image.loadWithThumb
 import dev.brahmkshatriya.echo.utils.ui.PlayerItemSpan
 import dev.brahmkshatriya.echo.utils.ui.animateVisibility
+import dev.brahmkshatriya.echo.utils.ui.dpToPx
 import dev.brahmkshatriya.echo.utils.ui.toTimeString
 import dev.brahmkshatriya.echo.viewmodels.UiViewModel
 import dev.brahmkshatriya.echo.viewmodels.UiViewModel.Companion.applyInsets
@@ -88,7 +91,7 @@ class DefaultViewHolder(
         binding.applyTrackDetails(extensionId, item)
         this.item = item
 
-        item.track.cover.loadWithBitmap(binding.root) { bitmap ->
+        item.track.cover.loadBitmap(binding.root) { bitmap ->
             val colors = binding.root.context.getPlayerColors(bitmap)
             binding.bgGradient.imageTintList = ColorStateList.valueOf(colors.background)
             binding.expandedToolbar.run {
@@ -285,6 +288,18 @@ class DefaultViewHolder(
         )
     }
 
+    override fun onCombinedInsetsChanged(insets: UiViewModel.Insets) {
+        binding.collapsedContainer.run{
+            val padding = 8.dpToPx(root.context)
+            listOf(collapsedPlayerInfo, collapsedSeekBar, collapsedBuffer).forEach {
+                it.updateLayoutParams<MarginLayoutParams> {
+                    marginStart = insets.start + padding
+                    marginEnd = insets.end + padding
+                }
+            }
+        }
+    }
+
     private fun Player?.hasVideo() =
         this?.currentTracks?.groups.orEmpty().any { it.type == C.TRACK_TYPE_VIDEO }
 
@@ -449,6 +464,8 @@ class DefaultViewHolder(
 
         collapsedContainer.run {
             collapsedTrackArtist.text = item.track.toMediaItem().subtitleWithE
+            collapsedTrackArtist.isSelected = true
+            collapsedTrackArtist.setHorizontallyScrolling(true)
             collapsedTrackTitle.text = track.title
             collapsedTrackTitle.isSelected = true
             collapsedTrackTitle.setHorizontallyScrolling(true)
@@ -497,6 +514,8 @@ class DefaultViewHolder(
         }
 
         trackArtist.text = spannableString
+        trackArtist.isSelected = true
+        trackArtist.setHorizontallyScrolling(true)
         trackArtist.movementMethod = LinkMovementMethod.getInstance()
     }
 

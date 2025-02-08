@@ -13,16 +13,17 @@ import dev.brahmkshatriya.echo.common.clients.LibraryFeedClient
 import dev.brahmkshatriya.echo.common.clients.PlaylistEditClient
 import dev.brahmkshatriya.echo.common.models.EchoMediaItem.Companion.toMediaItem
 import dev.brahmkshatriya.echo.common.models.Message
+import dev.brahmkshatriya.echo.common.models.Playlist
 import dev.brahmkshatriya.echo.databinding.FragmentLibraryBinding
 import dev.brahmkshatriya.echo.extensions.isClient
-import dev.brahmkshatriya.echo.ui.adapter.ShelfAdapter
 import dev.brahmkshatriya.echo.ui.MainFragment
 import dev.brahmkshatriya.echo.ui.MainFragment.Companion.first
 import dev.brahmkshatriya.echo.ui.MainFragment.Companion.scrollTo
+import dev.brahmkshatriya.echo.ui.adapter.ShelfAdapter
 import dev.brahmkshatriya.echo.ui.common.configureFeedUI
 import dev.brahmkshatriya.echo.ui.common.configureMainMenu
-import dev.brahmkshatriya.echo.ui.common.openFragment
 import dev.brahmkshatriya.echo.utils.autoCleared
+import dev.brahmkshatriya.echo.utils.getSerialized
 import dev.brahmkshatriya.echo.utils.observe
 import dev.brahmkshatriya.echo.utils.ui.onAppBarChangeListener
 import dev.brahmkshatriya.echo.utils.ui.setupTransition
@@ -75,18 +76,29 @@ class LibraryFragment : Fragment() {
         observe(viewModel.extensionFlow) {
             binding.fabCreatePlaylist.isVisible = it?.isClient<PlaylistEditClient>() ?: false
         }
+
         binding.fabCreatePlaylist.setOnClickListener {
-            parent.openFragment(CreatePlaylistFragment(), it)
+            CreatePlaylistBottomSheet().show(parentFragmentManager, null)
         }
 
         val listener = ShelfAdapter.getListener(parent)
-        observe(viewModel.playlistCreatedFlow) { (clientId, playlist) ->
-            createSnack(Message(
+        parentFragmentManager.setFragmentResultListener("createPlaylist", this) { _, data ->
+            val clientId = data.getString("extensionId")
+            val playlist = data.getSerialized<Playlist>("playlist")
+            if (clientId != null && playlist != null) createSnack(Message(
                 getString(R.string.playlist_created, playlist.title),
                 Message.Action(getString(R.string.view)) {
                     listener.onClick(clientId, playlist.toMediaItem(), null)
                 }
             ))
+            viewModel.refresh(true)
+        }
+
+        parent.parentFragmentManager.setFragmentResultListener("deleted", this) { _, _ ->
+            viewModel.refresh(true)
+        }
+
+        parent.parentFragmentManager.setFragmentResultListener("reloadLibrary", this) { _, _ ->
             viewModel.refresh(true)
         }
     }

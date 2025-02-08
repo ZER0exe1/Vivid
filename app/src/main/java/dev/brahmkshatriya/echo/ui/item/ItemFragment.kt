@@ -249,10 +249,11 @@ class ItemFragment : Fragment() {
         }
 
         parentFragmentManager.setFragmentResultListener("deleted", this) { _, bundle ->
-            if (bundle.getString("id") == viewModel.itemFlow.value?.id)
+            if (bundle.getString("id") == viewModel.itemFlow.value?.id) {
+                parentFragmentManager.setFragmentResult("reloadLibrary", Bundle())
                 parentFragmentManager.popBackStack()
+            }
         }
-
 
         collect(viewModel.relatedFeedFlow) {
             shelfAdapter?.submit(it)
@@ -319,6 +320,8 @@ class ItemFragment : Fragment() {
             shelfJob = mediaAdapter.applyCurrent(this, binding.recyclerView)
 
             shelfAdapter = mediaAdapter
+
+
             viewModel.isRadioClient = extension.isClient<RadioClient>()
             viewModel.isFollowClient = extension.isClient<ArtistFollowClient>()
 
@@ -351,6 +354,7 @@ class ItemFragment : Fragment() {
                         applyAdapter<RadioClient>(extension, R.string.radio, adapter)
                 }
             }
+            mediaAdapter.submit(viewModel.relatedFeedFlow.value)
         }
 
     }
