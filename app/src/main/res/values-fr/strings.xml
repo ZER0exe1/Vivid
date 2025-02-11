@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="search">Recherche</string>
-    <string name="app_name">Echo</string>
     <string name="home">Home</string>
     <string name="settings">Paramètres</string>
     <string name="library">Bibliothèque</string>
@@ -93,7 +92,7 @@
     <string name="no_lyrics">Parole indisponible</string>
     <string name="download_started">Lancement du téléchargement</string>
     <string name="download">Téléchargements</string>
-    <string name="username_password"><![CDATA[Nom d'utilisateur & Mot de passe]]></string>
+    <string name="username_password"><![CDATA[Nom d\'utilisateur & Mot de passe]]></string>
     <string name="name_settings">Paramètres sur %1$s</string>
     <string name="error_invalid_type">Type de paramètres invalide</string>
     <string name="extensions_summary">Gérer vos extensions</string>

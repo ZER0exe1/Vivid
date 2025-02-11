@@ -110,7 +110,6 @@ class ExtensionLoader(
     private suspend fun Extension<*>.setLoginUser(trigger: Boolean = false) {
         val user = userDao.getCurrentUser(id)
         inject<LoginClient>(throwableFlow) {
-            println("$this Setting User: ${user?.name}")
             withTimeout(TIMEOUT) { onSetLoginUser(user?.toUser()) }
         }
         if (trigger) {
@@ -214,6 +213,13 @@ class ExtensionLoader(
     }
 
     private suspend fun getAllPlugins(scope: CoroutineScope) {
+        extensionListFlow.value = null
+        trackerListFlow.value = null
+        lyricsListFlow.value = null
+        miscListFlow.value = null
+        userMap.clear()
+        System.gc()
+
         val music = MutableStateFlow<Unit?>(null)
         scope.launch {
             musicExtensionRepo.getPlugins { list ->
@@ -260,7 +266,6 @@ class ExtensionLoader(
         }
 
         music.first { it != null }
-        userMap.clear()
     }
 
     private suspend fun <T : ExtensionClient> ExtensionRepo<T>.getPlugins(
